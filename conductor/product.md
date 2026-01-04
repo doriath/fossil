@@ -1,6 +1,13 @@
 # Initial Concept
 To create a massively multiplayer game set in a world where dinosaurs still exist.
 
+# Core Game Loop and User Experience
+The game is structured around a foundational loop that includes:
+- A **Main Menu** for starting or exiting the game.
+- A **Gameplay State** featuring player movement within a 2D world.
+- An **In-Game Menu** accessible during gameplay for pausing, resuming, or returning to the main menu.
+This foundational structure provides the basic navigational and interactive framework for the player's experience.
+
 # Product Guide
 
 ## Development Focus
