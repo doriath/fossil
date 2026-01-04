@@ -1,6 +1,5 @@
-use bevy::prelude::*;
 use crate::states::AppState;
-use bevy::camera::Camera2d;
+use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct Player;
@@ -10,23 +9,26 @@ pub struct GameplayPlugin;
 impl Plugin for GameplayPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(AppState::InGame), setup_gameplay)
-           .add_systems(Update, move_player.run_if(in_state(AppState::InGame)));
+            .add_systems(Update, move_player.run_if(in_state(AppState::InGame)));
     }
 }
 
-fn setup_gameplay(mut commands: Commands, mut clear_color: ResMut<ClearColor>) {
-    clear_color.0 = Color::srgb(0.0, 1.0, 0.0);
+fn setup_gameplay(mut commands: Commands, mut clear_color: ResMut<ClearColor>, player_query: Query<Entity, With<Player>>) {
+    // Only spawn player if one doesn't already exist
+    if player_query.iter().next().is_none() {
+        clear_color.0 = Color::srgb(0.0, 1.0, 0.0);
 
-    // Spawn Player
-    commands.spawn((
-        Sprite {
-            color: Color::WHITE,
-            custom_size: Some(Vec2::new(32.0, 32.0)),
-            ..default()
-        },
-        Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-        Player,
-    ));
+        // Spawn Player
+        commands.spawn((
+            Sprite {
+                color: Color::WHITE,
+                custom_size: Some(Vec2::new(32.0, 32.0)),
+                ..default()
+            },
+            Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+            Player,
+        ));
+    }
 }
 
 fn move_player(
@@ -110,7 +112,7 @@ mod tests {
             .insert_resource(ClearColor::default())
             .add_plugins(bevy::input::InputPlugin)
             .add_plugins(bevy::time::TimePlugin);
-            
+
         // Manually spawn a camera as we would in main setup
         app.world_mut().spawn(Camera2d::default());
 
@@ -141,7 +143,11 @@ mod tests {
         app.update();
 
         let clear_color = app.world().resource::<ClearColor>();
-        assert_eq!(clear_color.0, Color::srgb(0.0, 1.0, 0.0), "Background should be green in gameplay");
+        assert_eq!(
+            clear_color.0,
+            Color::srgb(0.0, 1.0, 0.0),
+            "Background should be green in gameplay"
+        );
     }
 
     #[test]
@@ -155,30 +161,74 @@ mod tests {
             .add_plugins(bevy::time::TimePlugin);
 
         // Set initial state to InGame
-        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::InGame);
+        app.world_mut()
+            .resource_mut::<NextState<AppState>>()
+            .set(AppState::InGame);
         app.update(); // Apply state transition
 
         // Get the player's initial position
-        let initial_position = app.world_mut().query_filtered::<&Transform, With<Player>>()
+        let initial_position = app
+            .world_mut()
+            .query_filtered::<&Transform, With<Player>>()
             .iter(app.world())
             .next()
             .map(|t| t.translation)
             .unwrap_or(Vec3::ZERO);
 
         // Simulate 'W' key press
-        app.world_mut().resource_mut::<ButtonInput<KeyCode>>().press(KeyCode::KeyW);
+        app.world_mut()
+            .resource_mut::<ButtonInput<KeyCode>>()
+            .press(KeyCode::KeyW);
 
         // Run the app update to process input and movement system
         app.update(); // Run once to ensure systems run
 
         // Get the player's new position
-        let new_position = app.world_mut().query_filtered::<&Transform, With<Player>>()
+        let new_position = app
+            .world_mut()
+            .query_filtered::<&Transform, With<Player>>()
             .iter(app.world())
             .next()
             .map(|t| t.translation)
             .unwrap_or(Vec3::ZERO);
 
         // Assert that the player's Y position has increased
-        assert!(new_position.y > initial_position.y, "Player should move up when 'W' is pressed");
+        assert!(
+            new_position.y > initial_position.y,
+            "Player should move up when 'W' is pressed"
+        );
+    }
+
+    #[test]
+    fn test_resume_game_does_not_spawn_extra_player() {
+        let mut app = App::new();
+        app.add_plugins(StatesPlugin)
+            .init_state::<AppState>()
+            .add_plugins(GameplayPlugin)
+            .insert_resource(ClearColor::default())
+            .add_plugins(bevy::input::InputPlugin)
+            .add_plugins(bevy::time::TimePlugin);
+
+        // First transition to InGame to spawn initial player
+        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::InGame);
+        app.update();
+        app.update();
+
+        let initial_player_count = app.world_mut().query::<&Player>().iter(app.world()).len();
+        assert_eq!(initial_player_count, 1, "Initial player count should be 1");
+
+        // Now transition to Paused
+        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::Paused);
+        app.update();
+        app.update();
+
+        // Then transition back to InGame (simulating resume)
+        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::InGame);
+        app.update();
+        app.update();
+
+        // Assert that no new player was spawned
+        let final_player_count = app.world_mut().query::<&Player>().iter(app.world()).len();
+        assert_eq!(final_player_count, 1, "Resuming game should not spawn an extra player");
     }
 }
