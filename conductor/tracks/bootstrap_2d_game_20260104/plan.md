@@ -6,7 +6,7 @@
 - [x] Task: Implement the UI for the main menu with "Start" and "Exit" buttons. 6fafe86
 - [x] Task: Implement the logic for the "Start" button to transition to the gameplay state. 5d71238
 - [x] Task: Implement the logic for the "Exit" button to close the application. 2bb068d
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Main Menu Implementation' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 1: Main Menu Implementation' (Protocol in workflow.md)
 
 ## Phase 2: Gameplay State and Player Movement
 
