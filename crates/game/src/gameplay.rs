@@ -10,8 +10,8 @@ impl Plugin for GameplayPlugin {
     }
 }
 
-fn setup_gameplay(mut commands: Commands) {
-    // Placeholder for gameplay setup
+fn setup_gameplay(mut clear_color: ResMut<ClearColor>) {
+    clear_color.0 = Color::srgb(0.0, 1.0, 0.0);
 }
 
 #[cfg(test)]
@@ -24,7 +24,8 @@ mod tests {
         let mut app = App::new();
         app.add_plugins(StatesPlugin)
             .init_state::<AppState>()
-            .add_plugins(GameplayPlugin);
+            .add_plugins(GameplayPlugin)
+            .insert_resource(ClearColor::default());
 
         let mut next_state = app.world_mut().resource_mut::<NextState<AppState>>();
         next_state.set(AppState::InGame);
@@ -41,7 +42,8 @@ mod tests {
         let mut app = App::new();
         app.add_plugins(StatesPlugin)
             .init_state::<AppState>()
-            .add_plugins(GameplayPlugin);
+            .add_plugins(GameplayPlugin)
+            .insert_resource(ClearColor::default());
             
         // Manually spawn a camera as we would in main setup
         app.world_mut().spawn(Camera2d::default());
@@ -54,5 +56,23 @@ mod tests {
 
         let count = app.world_mut().query::<&Camera2d>().iter(app.world()).len();
         assert_eq!(count, 1, "There should be one camera in gameplay");
+    }
+
+    #[test]
+    fn test_background_is_green() {
+        let mut app = App::new();
+        app.add_plugins(StatesPlugin)
+            .init_state::<AppState>()
+            .add_plugins(GameplayPlugin)
+            .insert_resource(ClearColor(Color::BLACK)); // Default
+
+        let mut next_state = app.world_mut().resource_mut::<NextState<AppState>>();
+        next_state.set(AppState::InGame);
+
+        app.update();
+        app.update();
+
+        let clear_color = app.world().resource::<ClearColor>();
+        assert_eq!(clear_color.0, Color::srgb(0.0, 1.0, 0.0), "Background should be green in gameplay");
     }
 }
