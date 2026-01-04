@@ -16,8 +16,8 @@ impl Plugin for PauseMenuPlugin {
                 pause_menu_action.run_if(in_state(AppState::Paused)),
             ),
         )
-        .add_systems(OnEnter(AppState::Paused), setup_pause_menu);
-        // Add despawn system later
+        .add_systems(OnEnter(AppState::Paused), setup_pause_menu)
+        .add_systems(OnExit(AppState::Paused), despawn_pause_menu);
     }
 }
 
@@ -39,6 +39,12 @@ fn pause_menu_action(
                 }
             }
         }
+    }
+}
+
+fn despawn_pause_menu(mut commands: Commands, pause_menu_query: Query<Entity, With<PauseMenuUi>>) {
+    for entity in pause_menu_query.iter() {
+        commands.entity(entity).despawn();
     }
 }
 
@@ -281,5 +287,39 @@ mod tests {
 
         let state = app.world().resource::<State<AppState>>().get();
         assert_eq!(state, &AppState::MainMenu, "Game should return to MainMenu when Exit to Main Menu is pressed");
+    }
+
+    #[test]
+    fn test_pause_menu_despawns_on_exit() {
+        let mut app = App::new();
+        app.add_plugins(StatesPlugin)
+            .init_state::<AppState>()
+            .add_plugins(InputPlugin) // Required for ButtonInput<KeyCode>
+            .add_plugins(PauseMenuPlugin); // Add PauseMenuPlugin here
+
+        // Enter Paused state and spawn menu UI
+        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::Paused);
+        app.update();
+        app.update();
+
+        // Simulate "Continue" button press to transition to InGame state
+        let mut continue_button_entity = None;
+        let mut query = app.world_mut().query::<(&Text, &ChildOf)>();
+        
+        for (text, parent) in query.iter(app.world()) {
+            if text.0 == "Continue" {
+                continue_button_entity = Some(parent.parent());
+                break;
+            }
+        }
+        
+        let continue_button_entity = continue_button_entity.expect("Continue button not found");
+        app.world_mut().entity_mut(continue_button_entity).insert(Interaction::Pressed);
+        app.update();
+        app.update(); // State transition happens here
+
+        // Assert that no entities with PauseMenuUi component exist
+        let count = app.world_mut().query::<&PauseMenuUi>().iter(app.world()).len();
+        assert_eq!(count, 0, "Pause menu UI should be despawned after exiting Paused state");
     }
 }
