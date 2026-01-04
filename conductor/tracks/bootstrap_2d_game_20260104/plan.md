@@ -11,7 +11,7 @@
 ## Phase 2: Gameplay State and Player Movement
 
 - [x] Task: Create a new Bevy state for the gameplay. 9e6ca14
-- [ ] Task: Set up a 2D top-down camera.
+- [x] Task: Set up a 2D top-down camera. 9323c7c
 - [ ] Task: Implement a simple green background to represent the game world.
 - [ ] Task: Add a player sprite to the game world.
 - [ ] Task: Implement player movement using WSAD keys.
