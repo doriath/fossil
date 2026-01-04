@@ -9,7 +9,26 @@ fn main() {
         .init_state::<AppState>()
         .add_systems(Startup, setup)
         .add_systems(OnEnter(AppState::MainMenu), main_menu_setup)
+        .add_systems(Update, menu_action.run_if(in_state(AppState::MainMenu)))
         .run();
+}
+
+fn menu_action(
+    interaction_query: Query<(&Interaction, &Children), (Changed<Interaction>, With<Button>)>,
+    text_query: Query<&Text>,
+    mut next_state: ResMut<NextState<AppState>>,
+) {
+    for (interaction, children) in &interaction_query {
+        if *interaction == Interaction::Pressed {
+            for &child in children {
+                if let Ok(text) = text_query.get(child) {
+                    if text.0 == "Start" {
+                        next_state.set(AppState::InGame);
+                    }
+                }
+            }
+        }
+    }
 }
 
 fn main_menu_setup(mut commands: Commands) {
@@ -144,5 +163,40 @@ mod tests {
         }
         assert!(found_start, "Start button text not found");
         assert!(found_exit, "Exit button text not found");
+    }
+
+    #[test]
+    fn test_start_button_transitions_to_ingame() {
+        let mut app = App::new();
+        app.add_plugins(StatesPlugin)
+            .init_state::<AppState>()
+            .add_systems(OnEnter(AppState::MainMenu), main_menu_setup)
+            .add_systems(Update, menu_action);
+            // .add_systems(Update, menu_action.run_if(in_state(AppState::MainMenu))); 
+
+        app.update();
+
+        // Find Start button
+        let mut start_button_entity = None;
+        let mut query = app.world_mut().query::<(&Text, &ChildOf)>();
+        
+        for (text, parent) in query.iter(app.world()) {
+            if text.0 == "Start" {
+                start_button_entity = Some(parent.parent());
+                break;
+            }
+        }
+        
+        let start_button_entity = start_button_entity.expect("Start button not found");
+
+        // Simulate press
+        app.world_mut().entity_mut(start_button_entity).insert(Interaction::Pressed);
+
+        app.update();
+        app.update(); // State transition happens in next frame
+
+        // Check state
+        let state = app.world().resource::<State<AppState>>().get();
+        assert_eq!(state, &AppState::InGame, "State should be InGame after pressing Start");
     }
 }
