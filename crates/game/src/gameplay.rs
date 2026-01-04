@@ -9,7 +9,8 @@ pub struct GameplayPlugin;
 
 impl Plugin for GameplayPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::InGame), setup_gameplay);
+        app.add_systems(OnEnter(AppState::InGame), setup_gameplay)
+           .add_systems(Update, move_player.run_if(in_state(AppState::InGame)));
     }
 }
 
@@ -28,6 +29,33 @@ fn setup_gameplay(mut commands: Commands, mut clear_color: ResMut<ClearColor>) {
     ));
 }
 
+fn move_player(
+    mut transforms: Query<&mut Transform, With<Player>>,
+    input: Res<ButtonInput<KeyCode>>,
+    time: Res<Time>,
+) {
+    let speed = 100.0;
+    for mut transform in &mut transforms {
+        let mut direction = Vec3::ZERO;
+        if input.pressed(KeyCode::KeyW) {
+            direction.y += 1.0;
+        }
+        if input.pressed(KeyCode::KeyS) {
+            direction.y -= 1.0;
+        }
+        if input.pressed(KeyCode::KeyA) {
+            direction.x -= 1.0;
+        }
+        if input.pressed(KeyCode::KeyD) {
+            direction.x += 1.0;
+        }
+
+        if direction.length_squared() > 0.0 {
+            transform.translation += direction.normalize() * speed * time.delta_secs();
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -39,7 +67,9 @@ mod tests {
         app.add_plugins(StatesPlugin)
             .init_state::<AppState>()
             .add_plugins(GameplayPlugin)
-            .insert_resource(ClearColor::default());
+            .insert_resource(ClearColor::default())
+            .add_plugins(bevy::input::InputPlugin)
+            .add_plugins(bevy::time::TimePlugin);
 
         let mut next_state = app.world_mut().resource_mut::<NextState<AppState>>();
         next_state.set(AppState::InGame);
@@ -57,7 +87,9 @@ mod tests {
         app.add_plugins(StatesPlugin)
             .init_state::<AppState>()
             .add_plugins(GameplayPlugin)
-            .insert_resource(ClearColor::default());
+            .insert_resource(ClearColor::default())
+            .add_plugins(bevy::input::InputPlugin)
+            .add_plugins(bevy::time::TimePlugin);
 
         let mut next_state = app.world_mut().resource_mut::<NextState<AppState>>();
         next_state.set(AppState::InGame);
@@ -75,7 +107,9 @@ mod tests {
         app.add_plugins(StatesPlugin)
             .init_state::<AppState>()
             .add_plugins(GameplayPlugin)
-            .insert_resource(ClearColor::default());
+            .insert_resource(ClearColor::default())
+            .add_plugins(bevy::input::InputPlugin)
+            .add_plugins(bevy::time::TimePlugin);
             
         // Manually spawn a camera as we would in main setup
         app.world_mut().spawn(Camera2d::default());
@@ -96,7 +130,9 @@ mod tests {
         app.add_plugins(StatesPlugin)
             .init_state::<AppState>()
             .add_plugins(GameplayPlugin)
-            .insert_resource(ClearColor(Color::BLACK)); // Default
+            .insert_resource(ClearColor(Color::BLACK)) // Default
+            .add_plugins(bevy::input::InputPlugin)
+            .add_plugins(bevy::time::TimePlugin);
 
         let mut next_state = app.world_mut().resource_mut::<NextState<AppState>>();
         next_state.set(AppState::InGame);
@@ -106,5 +142,43 @@ mod tests {
 
         let clear_color = app.world().resource::<ClearColor>();
         assert_eq!(clear_color.0, Color::srgb(0.0, 1.0, 0.0), "Background should be green in gameplay");
+    }
+
+    #[test]
+    fn test_player_moves_up_on_w_press() {
+        let mut app = App::new();
+        app.add_plugins(StatesPlugin)
+            .init_state::<AppState>()
+            .add_plugins(GameplayPlugin)
+            .insert_resource(ClearColor::default())
+            .add_plugins(bevy::input::InputPlugin) // Required for ButtonInput<KeyCode>
+            .add_plugins(bevy::time::TimePlugin);
+
+        // Set initial state to InGame
+        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::InGame);
+        app.update(); // Apply state transition
+
+        // Get the player's initial position
+        let initial_position = app.world_mut().query_filtered::<&Transform, With<Player>>()
+            .iter(app.world())
+            .next()
+            .map(|t| t.translation)
+            .unwrap_or(Vec3::ZERO);
+
+        // Simulate 'W' key press
+        app.world_mut().resource_mut::<ButtonInput<KeyCode>>().press(KeyCode::KeyW);
+
+        // Run the app update to process input and movement system
+        app.update(); // Run once to ensure systems run
+
+        // Get the player's new position
+        let new_position = app.world_mut().query_filtered::<&Transform, With<Player>>()
+            .iter(app.world())
+            .next()
+            .map(|t| t.translation)
+            .unwrap_or(Vec3::ZERO);
+
+        // Assert that the player's Y position has increased
+        assert!(new_position.y > initial_position.y, "Player should move up when 'W' is pressed");
     }
 }
