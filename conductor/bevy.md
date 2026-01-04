@@ -9,6 +9,18 @@ Bevy 0.17 moves away from `*Bundle` types for UI construction in favor of indivi
 *   **Removed/Deprecated:** `NodeBundle`, `ButtonBundle`, `TextBundle`, `ImageBundle`.
 *   **New Pattern:** Spawn entities with individual components.
 
+### Explicit `Interaction` Component for Buttons
+After the removal of `ButtonBundle`, the `Interaction` component is no longer automatically added to entities. It must be explicitly added for buttons to be interactable.
+
+```rust
+commands.spawn((
+    Button,
+    Interaction::default(), // Crucial for button interaction
+    Node { /* ... */ },
+    BackgroundColor { /* ... */ },
+));
+```
+
 ### Example: Node & Button
 ```rust
 commands.spawn((
@@ -43,11 +55,24 @@ commands.spawn((
 *   **Changed:** `commands.entity(e).despawn_recursive()` is removed.
 *   **New Pattern:** `commands.entity(e).despawn()` now handles the despawning (check migration guides for specifics on children, but `despawn()` is often the replacement).
 
-## 3. Color API
+## 3. Hierarchy & Parent/Child Relationships
+
+*   **Changed:** The `Parent` component in queries is now `ChildOf`.
+*   **New Pattern:** When querying for children to find their parent entity:
+    ```rust
+    let mut query = app.world_mut().query::<(&Text, &ChildOf)>();
+    for (text, parent_component) in query.iter(app.world()) {
+        // parent_component.parent() returns the Entity of the parent
+        let parent_entity = parent_component.parent();
+        // ...
+    }
+    ```
+
+## 4. Color API
 
 *   **Changed:** `Color::rgba` is replaced by `Color::srgba`. Bevy 0.17 uses `Srgba` and `LinearRgba` more explicitly.
 
-## 4. Testing Systems & State
+## 5. Testing Systems & State
 
 *   **State Transitions:** When testing systems with `run_if(in_state(AppState::X))`, ensure you call `app.update()` enough times for the state transition to fully apply *before* the system is expected to run.
     ```rust
@@ -55,4 +80,4 @@ commands.spawn((
     app.update(); // Apply transition
     app.update(); // Settle state (sometimes needed before input/systems align)
     ```
-*   **Input in Tests:** `Input<KeyCode>` updates frame-by-frame. `just_pressed` requires precise timing relative to `app.update()`. Ensure input is simulated *after* the state is settled if the system depends on both.
+*   **Input in Tests:** `Input<KeyCode>` updates frame-by-frame. `just_pressed` requires precise timing relative to `app.update()`. Ensure input is simulated *after* the state is settled if the system depends on both. It was observed that `pressed` might be more reliable in some unit test scenarios than `just_pressed` for single `app.update()` calls.
