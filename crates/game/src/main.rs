@@ -4,6 +4,9 @@ use crate::states::AppState;
 use bevy::camera::Camera2d;
 use bevy::prelude::*; // Added back explicit import
 
+#[derive(Component)]
+struct MainMenuUi; // Marker component for the main menu UI
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
@@ -11,6 +14,7 @@ fn main() {
         .add_plugins(gameplay::GameplayPlugin)
         .add_systems(Startup, setup)
         .add_systems(OnEnter(AppState::MainMenu), main_menu_setup)
+        .add_systems(OnExit(AppState::MainMenu), despawn_main_menu) // Add despawn system here
         .add_systems(Update, menu_action.run_if(in_state(AppState::MainMenu)))
         .run();
 }
@@ -39,14 +43,17 @@ fn menu_action(
 
 fn main_menu_setup(mut commands: Commands) {
     commands
-        .spawn(Node {
-            width: Val::Percent(100.0),
-            height: Val::Percent(100.0),
-            flex_direction: FlexDirection::Column,
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            ..default()
-        })
+        .spawn(( // Changed here to add MainMenuUi marker
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            MainMenuUi, // Marker component
+        ))
         .with_children(|parent| {
             // Title
             parent.spawn((
@@ -110,6 +117,12 @@ fn main_menu_setup(mut commands: Commands) {
 
 fn setup(mut commands: Commands) {
     commands.spawn(Camera2d::default());
+}
+
+fn despawn_main_menu(mut commands: Commands, main_menu_query: Query<Entity, With<MainMenuUi>>) {
+    for entity in main_menu_query.iter() {
+        commands.entity(entity).despawn();
+    }
 }
 
 #[cfg(test)]
