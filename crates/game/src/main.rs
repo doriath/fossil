@@ -1,4 +1,5 @@
 mod states;
+mod gameplay;
 use crate::states::AppState;
 use bevy::camera::Camera2d;
 use bevy::prelude::*; // Added back explicit import
@@ -7,6 +8,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .init_state::<AppState>()
+        .add_plugins(gameplay::GameplayPlugin)
         .add_systems(Startup, setup)
         .add_systems(OnEnter(AppState::MainMenu), main_menu_setup)
         .add_systems(Update, menu_action.run_if(in_state(AppState::MainMenu)))
