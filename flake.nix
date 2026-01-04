@@ -5,7 +5,7 @@
   #
   # Nix provides a declariative way to define reproducible development environment
   # and aims to remove the issue of "works on my machine".
-  # 
+  #
   # If you use Nix, you can install and activate all dependencies required to
   # develop on this project with:
   #
@@ -13,8 +13,8 @@
   #
   # If in addition you have `direnv` installed, you can create `.envrc` file with
   # `use flake` content, so that development environment activates automatically
-  # when the project root directory is entered. 
-  # 
+  # when the project root directory is entered.
+  #
   # More information:
   # - Nix: https://nixos.org
   # - Nix flakes:  https://wiki.nixos.org/wiki/Flakes
@@ -53,13 +53,23 @@
                 "rust-analyzer"
               ];
             })
+            # Audio (Linux only)
             pkgs.alsa-lib
-            pkgs.udev
+            # Cross Platform 3D Graphics API
+            pkgs.vulkan-loader
+            # For debugging around vulkan
+            pkgs.vulkan-tools
+            # Other dependencies
+            pkgs.libudev-zero
             pkgs.pkg-config
             pkgs.wayland
             pkgs.libxkbcommon
           ];
-          LD_LIBRARY_PATH = "${pkgs.wayland}/lib:${pkgs.libxkbcommon}/lib";
+          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+            pkgs.wayland
+            pkgs.libxkbcommon
+            pkgs.vulkan-loader
+          ];
         };
       }
     );
