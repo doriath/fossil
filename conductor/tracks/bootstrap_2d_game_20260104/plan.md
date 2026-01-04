@@ -24,5 +24,5 @@
 - [x] Task: Implement the logic to show the in-game menu overlay when "Escape" is pressed. bbd434e
 - [x] Task: Implement the UI for the in-game menu with "Continue" and "Exit to Main Menu" buttons. b331d84
 - [x] Task: Implement the logic for the "Continue" button to resume the game. e17a1fd
-- [ ] Task: Implement the logic for the "Exit to Main Menu" button to return to the main menu.
+- [x] Task: Implement the logic for the "Exit to Main Menu" button to return to the main menu. abef9de
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: In-Game Menu' (Protocol in workflow.md)
