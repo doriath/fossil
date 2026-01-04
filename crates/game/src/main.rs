@@ -17,6 +17,7 @@ fn menu_action(
     interaction_query: Query<(&Interaction, &Children), (Changed<Interaction>, With<Button>)>,
     text_query: Query<&Text>,
     mut next_state: ResMut<NextState<AppState>>,
+    mut app_exit_events: MessageWriter<AppExit>,
 ) {
     for (interaction, children) in &interaction_query {
         if *interaction == Interaction::Pressed {
@@ -24,6 +25,9 @@ fn menu_action(
                 if let Ok(text) = text_query.get(child) {
                     if text.0 == "Start" {
                         next_state.set(AppState::InGame);
+                    }
+                    if text.0 == "Exit" {
+                        app_exit_events.write(AppExit::Success);
                     }
                 }
             }
@@ -198,5 +202,39 @@ mod tests {
         // Check state
         let state = app.world().resource::<State<AppState>>().get();
         assert_eq!(state, &AppState::InGame, "State should be InGame after pressing Start");
+    }
+
+    #[test]
+    fn test_exit_button_closes_app() {
+        let mut app = App::new();
+        app.add_plugins(StatesPlugin)
+            .init_state::<AppState>()
+            .add_message::<AppExit>()
+            .add_systems(OnEnter(AppState::MainMenu), main_menu_setup)
+            .add_systems(Update, menu_action);
+
+        app.update();
+
+        // Find Exit button
+        let mut exit_button_entity = None;
+        let mut query = app.world_mut().query::<(&Text, &ChildOf)>();
+        
+        for (text, parent) in query.iter(app.world()) {
+            if text.0 == "Exit" {
+                exit_button_entity = Some(parent.parent());
+                break;
+            }
+        }
+        
+        let exit_button_entity = exit_button_entity.expect("Exit button not found");
+
+        // Simulate press
+        app.world_mut().entity_mut(exit_button_entity).insert(Interaction::Pressed);
+
+        app.update();
+
+        // Check for AppExit event
+        let events = app.world().resource::<Messages<AppExit>>();
+        assert!(!events.is_empty(), "AppExit event should be sent after pressing Exit");
     }
 }
