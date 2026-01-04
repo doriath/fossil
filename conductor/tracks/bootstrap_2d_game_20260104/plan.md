@@ -2,7 +2,7 @@
 
 ## Phase 1: Main Menu Implementation
 
-- [ ] Task: Create a new Bevy state for the main menu.
+- [x] Task: Create a new Bevy state for the main menu. 6ce9bb8
 - [ ] Task: Implement the UI for the main menu with "Start" and "Exit" buttons.
 - [ ] Task: Implement the logic for the "Start" button to transition to the gameplay state.
 - [ ] Task: Implement the logic for the "Exit" button to close the application.
