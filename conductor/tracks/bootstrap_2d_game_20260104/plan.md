@@ -18,11 +18,11 @@
 - [x] Task: Hide main menu after transitioning to InGame state. 8a74d38
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Gameplay State and Player Movement' (Protocol in workflow.md) 01417b8
 
-## Phase 3: In-Game Menu
+## Phase 3: In-Game Menu [checkpoint: 231f80f]
 
 - [x] Task: Create a new Bevy state for the in-game pause menu. ac2cf34
 - [x] Task: Implement the logic to show the in-game menu overlay when "Escape" is pressed. bbd434e
 - [x] Task: Implement the UI for the in-game menu with "Continue" and "Exit to Main Menu" buttons. b331d84
 - [x] Task: Implement the logic for the "Continue" button to resume the game. e17a1fd
 - [x] Task: Implement the logic for the "Exit to Main Menu" button to return to the main menu. abef9de
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: In-Game Menu' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: In-Game Menu' (Protocol in workflow.md) 231f80f
