@@ -15,6 +15,7 @@
 - [x] Task: Implement a simple green background to represent the game world. 46e32b1
 - [x] Task: Add a player sprite to the game world. 3a923c0
 - [x] Task: Implement player movement using WSAD keys. 345d649
+- [x] Task: Hide main menu after transitioning to InGame state. 8a74d38
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Gameplay State and Player Movement' (Protocol in workflow.md)
 
 ## Phase 3: In-Game Menu
