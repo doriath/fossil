@@ -5,4 +5,4 @@ members = [
 ]
 
 [workspace.dependencies]
-bevy = "0.17"
+bevy = { version = "0.17", features = ["bevy_ui", "bevy_asset"] }
