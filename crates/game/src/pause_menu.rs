@@ -81,6 +81,7 @@ fn setup_pause_menu(mut commands: Commands) {
             // Continue Button
             parent.spawn((
                 Button,
+                Interaction::default(), // Ensure Interaction component is present
                 Node {
                     width: Val::Px(200.0),
                     height: Val::Px(65.0),
@@ -105,6 +106,7 @@ fn setup_pause_menu(mut commands: Commands) {
             // Exit to Main Menu Button
             parent.spawn((
                 Button,
+                Interaction::default(), // Ensure Interaction component is present
                 Node {
                     width: Val::Px(200.0),
                     height: Val::Px(65.0),
