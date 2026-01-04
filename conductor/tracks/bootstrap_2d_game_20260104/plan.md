@@ -8,7 +8,7 @@
 - [x] Task: Implement the logic for the "Exit" button to close the application. 2bb068d
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Main Menu Implementation' (Protocol in workflow.md) 2d98cad
 
-## Phase 2: Gameplay State and Player Movement
+## Phase 2: Gameplay State and Player Movement [checkpoint: 01417b8]
 
 - [x] Task: Create a new Bevy state for the gameplay. 9e6ca14
 - [x] Task: Set up a 2D top-down camera. 9323c7c
@@ -16,7 +16,7 @@
 - [x] Task: Add a player sprite to the game world. 3a923c0
 - [x] Task: Implement player movement using WSAD keys. 345d649
 - [x] Task: Hide main menu after transitioning to InGame state. 8a74d38
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Gameplay State and Player Movement' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Gameplay State and Player Movement' (Protocol in workflow.md) 01417b8
 
 ## Phase 3: In-Game Menu
 
