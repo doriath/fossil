@@ -33,6 +33,9 @@ fn pause_menu_action(
                     if text.0 == "Continue" {
                         next_state.set(AppState::InGame);
                     }
+                    if text.0 == "Exit to Main Menu" {
+                        next_state.set(AppState::MainMenu);
+                    }
                 }
             }
         }
@@ -240,5 +243,41 @@ mod tests {
 
         let state = app.world().resource::<State<AppState>>().get();
         assert_eq!(state, &AppState::InGame, "Game should resume when Continue is pressed");
+    }
+
+    #[test]
+    fn test_exit_to_main_menu_button_returns_to_main_menu() {
+        let mut app = App::new();
+        app.add_plugins(StatesPlugin)
+            .init_state::<AppState>()
+            .add_plugins(InputPlugin)
+            .add_plugins(PauseMenuPlugin);
+
+        // Start in Paused state
+        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::Paused);
+        app.update();
+        app.update();
+
+        // Find "Exit to Main Menu" button entity
+        let mut exit_button_entity = None;
+        let mut query = app.world_mut().query::<(&Text, &ChildOf)>();
+        
+        for (text, parent) in query.iter(app.world()) {
+            if text.0 == "Exit to Main Menu" {
+                exit_button_entity = Some(parent.parent());
+                break;
+            }
+        }
+        
+        let exit_button_entity = exit_button_entity.expect("Exit to Main Menu button not found");
+
+        // Simulate button press
+        app.world_mut().entity_mut(exit_button_entity).insert(Interaction::Pressed);
+
+        app.update();
+        app.update(); // Process state transition
+
+        let state = app.world().resource::<State<AppState>>().get();
+        assert_eq!(state, &AppState::MainMenu, "Game should return to MainMenu when Exit to Main Menu is pressed");
     }
 }
