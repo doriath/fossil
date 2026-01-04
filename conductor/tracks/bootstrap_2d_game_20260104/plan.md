@@ -21,7 +21,7 @@
 ## Phase 3: In-Game Menu
 
 - [x] Task: Create a new Bevy state for the in-game pause menu. ac2cf34
-- [ ] Task: Implement the logic to show the in-game menu overlay when "Escape" is pressed.
+- [x] Task: Implement the logic to show the in-game menu overlay when "Escape" is pressed. bbd434e
 - [ ] Task: Implement the UI for the in-game menu with "Continue" and "Exit to Main Menu" buttons.
 - [ ] Task: Implement the logic for the "Continue" button to resume the game.
 - [ ] Task: Implement the logic for the "Exit to Main Menu" button to return to the main menu.
