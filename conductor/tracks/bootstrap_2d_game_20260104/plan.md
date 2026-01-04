@@ -12,7 +12,7 @@
 
 - [x] Task: Create a new Bevy state for the gameplay. 9e6ca14
 - [x] Task: Set up a 2D top-down camera. 9323c7c
-- [ ] Task: Implement a simple green background to represent the game world.
+- [x] Task: Implement a simple green background to represent the game world. 46e32b1
 - [ ] Task: Add a player sprite to the game world.
 - [ ] Task: Implement player movement using WSAD keys.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Gameplay State and Player Movement' (Protocol in workflow.md)
