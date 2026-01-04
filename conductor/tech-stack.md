@@ -4,7 +4,7 @@
 - Rust
 
 ## Frameworks
-- Bevy (game engine)
+- Bevy (game engine) - [See Bevy 0.17 Learnings](./bevy.md)
 
 ## Build System
 - Cargo
