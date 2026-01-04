@@ -53,7 +53,13 @@
                 "rust-analyzer"
               ];
             })
+            pkgs.alsa-lib
+            pkgs.udev
+            pkgs.pkg-config
+            pkgs.wayland
+            pkgs.libxkbcommon
           ];
+          LD_LIBRARY_PATH = "${pkgs.wayland}/lib:${pkgs.libxkbcommon}/lib";
         };
       }
     );
