@@ -13,19 +13,74 @@ fn main() {
 }
 
 fn main_menu_setup(mut commands: Commands) {
-    main_menu_title_setup(&mut commands);
-    // UI elements will be added here
-}
+    commands
+        .spawn(Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        })
+        .with_children(|parent| {
+            // Title
+            parent.spawn((
+                Text::new("Main Menu"),
+                TextFont {
+                    font_size: 100.0,
+                    ..Default::default()
+                },
+                TextColor(Color::WHITE),
+            ));
 
-fn main_menu_title_setup(commands: &mut Commands) {
-    commands.spawn((
-        Text::new("Main Menu"),
-        TextFont {
-            font_size: 100.0,
-            ..Default::default()
-        },
-        TextColor(Color::WHITE),
-    ));
+            // Start Button
+            parent.spawn((
+                Button,
+                Node {
+                    width: Val::Px(150.0),
+                    height: Val::Px(65.0),
+                    margin: UiRect::all(Val::Px(20.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
+            ))
+            .with_children(|parent| {
+                parent.spawn((
+                    Text::new("Start"),
+                    TextFont {
+                        font_size: 40.0,
+                        ..default()
+                    },
+                    TextColor(Color::WHITE),
+                ));
+            });
+
+            // Exit Button
+            parent.spawn((
+                Button,
+                Node {
+                    width: Val::Px(150.0),
+                    height: Val::Px(65.0),
+                    margin: UiRect::all(Val::Px(20.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
+            ))
+            .with_children(|parent| {
+                parent.spawn((
+                    Text::new("Exit"),
+                    TextFont {
+                        font_size: 40.0,
+                        ..default()
+                    },
+                    TextColor(Color::WHITE),
+                ));
+            });
+        });
 }
 
 fn setup(mut commands: Commands) {
@@ -65,5 +120,29 @@ mod tests {
             }
         }
         assert!(found_text, "Main Menu title text not found.");
+    }
+
+    #[test]
+    fn test_main_menu_buttons_are_present() {
+        let mut app = App::new();
+        app.add_plugins(StatesPlugin)
+            .init_state::<AppState>()
+            .add_systems(OnEnter(AppState::MainMenu), main_menu_setup);
+        app.update();
+
+        let mut query = app.world_mut().query::<&Text>();
+        let mut found_start = false;
+        let mut found_exit = false;
+
+        for text in query.iter(app.world()) {
+            if text.0 == "Start" {
+                found_start = true;
+            }
+            if text.0 == "Exit" {
+                found_exit = true;
+            }
+        }
+        assert!(found_start, "Start button text not found");
+        assert!(found_exit, "Exit button text not found");
     }
 }
