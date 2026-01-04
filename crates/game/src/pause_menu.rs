@@ -11,11 +11,31 @@ impl Plugin for PauseMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            pause_game_on_escape.run_if(in_state(AppState::InGame)),
+            (
+                pause_game_on_escape.run_if(in_state(AppState::InGame)),
+                pause_menu_action.run_if(in_state(AppState::Paused)),
+            ),
         )
-        .add_systems(OnEnter(AppState::Paused), setup_pause_menu)
+        .add_systems(OnEnter(AppState::Paused), setup_pause_menu);
         // Add despawn system later
-        ;
+    }
+}
+
+fn pause_menu_action(
+    interaction_query: Query<(&Interaction, &Children), (Changed<Interaction>, With<Button>)>,
+    text_query: Query<&Text>,
+    mut next_state: ResMut<NextState<AppState>>,
+) {
+    for (interaction, children) in &interaction_query {
+        if *interaction == Interaction::Pressed {
+            for &child in children {
+                if let Ok(text) = text_query.get(child) {
+                    if text.0 == "Continue" {
+                        next_state.set(AppState::InGame);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -183,5 +203,42 @@ mod tests {
         }
         assert!(found_continue, "Continue button text not found in pause menu");
         assert!(found_exit, "Exit to Main Menu button text not found in pause menu");
+    }
+
+    #[test]
+    fn test_continue_button_resumes_game() {
+        let mut app = App::new();
+        app.add_plugins(StatesPlugin)
+            .init_state::<AppState>()
+            .add_plugins(InputPlugin)
+            .add_plugins(PauseMenuPlugin);
+
+        // Start in Paused state
+        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::Paused);
+        app.update();
+        app.update();
+
+        // Find "Continue" button entity
+        let mut continue_button_entity = None;
+        // Text is a child of the Button. Query for Text and getting its Parent (ChildOf)
+        let mut query = app.world_mut().query::<(&Text, &ChildOf)>();
+        
+        for (text, parent) in query.iter(app.world()) {
+            if text.0 == "Continue" {
+                continue_button_entity = Some(parent.parent());
+                break;
+            }
+        }
+        
+        let continue_button_entity = continue_button_entity.expect("Continue button not found");
+
+        // Simulate button press
+        app.world_mut().entity_mut(continue_button_entity).insert(Interaction::Pressed);
+
+        app.update();
+        app.update(); // Process state transition
+
+        let state = app.world().resource::<State<AppState>>().get();
+        assert_eq!(state, &AppState::InGame, "Game should resume when Continue is pressed");
     }
 }
