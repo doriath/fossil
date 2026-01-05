@@ -4,13 +4,40 @@ mod pause_menu;
 use crate::states::AppState;
 use bevy::camera::Camera2d;
 use bevy::prelude::*; // Added back explicit import
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    /// Start as server
+    #[arg(long)]
+    server: bool,
+
+    /// Start as client
+    #[arg(long)]
+    client: bool,
+}
+
+#[derive(Resource, Clone, Copy, Debug, PartialEq, Eq)]
+enum NetworkMode {
+    Server,
+    Client,
+}
 
 #[derive(Component)]
 struct MainMenuUi; // Marker component for the main menu UI
 
 fn main() {
+    let cli = Cli::parse();
+    let network_mode = if cli.server {
+        NetworkMode::Server
+    } else {
+        NetworkMode::Client
+    };
+
     App::new()
         .add_plugins(DefaultPlugins)
+        .insert_resource(network_mode)
         .init_state::<AppState>()
         .add_plugins(gameplay::GameplayPlugin)
         .add_plugins(pause_menu::PauseMenuPlugin)
