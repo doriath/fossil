@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use renet::ServerEvent; // New import
 use bevy_replicon_renet::{
     renet::{
         ConnectionConfig, RenetClient, RenetServer,
@@ -48,6 +49,9 @@ impl Plugin for NetworkPlugin {
                 app.insert_resource(transport);
                 
                 info!("Server started on {}", public_addr);
+                app.add_systems(Update, server_spawn_player.run_if(
+                    |server: Option<Res<RenetServer>>| server.is_some()
+                ));
             }
             NetworkMode::Client => {
                 let client = RenetClient::new(ConnectionConfig::default());
@@ -70,6 +74,34 @@ impl Plugin for NetworkPlugin {
                 app.insert_resource(transport);
                 
                 info!("Client started, connecting to {}", server_addr);
+            }
+        }
+    }
+}
+
+fn server_spawn_player(
+    mut commands: Commands,
+    mut server_events: MessageReader<ServerEvent>, // Changed
+) {
+    for event in server_events.read() {
+        match event {
+            ServerEvent::ClientConnected { client_id } => {
+                commands.spawn((
+                    Player,
+                    PlayerId(*client_id),
+                    Replicated,
+                    Sprite {
+                        color: Color::WHITE,
+                        custom_size: Some(Vec2::new(32.0, 32.0)),
+                        ..default()
+                    },
+                    Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+                    GlobalTransform::default(),
+                ));
+                info!("Server spawned player for client {}", client_id);
+            }
+            ServerEvent::ClientDisconnected { client_id, reason } => {
+                info!("Client {} disconnected: {:?}", client_id, reason);
             }
         }
     }
