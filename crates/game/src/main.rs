@@ -1,6 +1,7 @@
 mod states;
 mod gameplay;
 mod pause_menu;
+mod network; // Added
 use crate::states::AppState;
 use bevy::camera::Camera2d;
 use bevy::prelude::*; // Added back explicit import
@@ -19,7 +20,7 @@ struct Cli {
 }
 
 #[derive(Resource, Clone, Copy, Debug, PartialEq, Eq)]
-enum NetworkMode {
+pub enum NetworkMode {
     Server,
     Client,
 }
@@ -38,6 +39,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .insert_resource(network_mode)
+        .add_plugins(network::NetworkPlugin)
         .init_state::<AppState>()
         .add_plugins(gameplay::GameplayPlugin)
         .add_plugins(pause_menu::PauseMenuPlugin)
