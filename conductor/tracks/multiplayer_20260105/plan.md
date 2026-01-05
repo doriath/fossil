@@ -18,7 +18,7 @@
 ## Phase 2: Player Entity and Position Replication
 *   **Goal:** Enable player entities to be spawned on the server, replicated to clients, and their positions synchronized across all connected instances.
 
-*   [ ] Task: Define replicable player components.
+*   [x] Task: Define replicable player components. 19f6be8
     *   [ ] Sub-task: Create or modify existing player components (e.g., `PlayerId`, `Transform`) to derive `Replicate` trait for `bevy_replicon`.
     *   [ ] Sub-task: Add `RepliconAppExt` to the appropriate `App` for replication setup.
 *   [ ] Task: Implement server-side player management.
