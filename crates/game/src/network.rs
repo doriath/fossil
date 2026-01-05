@@ -16,6 +16,9 @@ use std::time::SystemTime;
 use crate::NetworkMode;
 use crate::gameplay::{Player, PlayerId};
 
+#[derive(Component)]
+pub struct IsLocalPlayer;
+
 pub struct NetworkPlugin;
 
 impl Plugin for NetworkPlugin {
@@ -83,16 +86,13 @@ impl Plugin for NetworkPlugin {
 }
 
 
-#[derive(Component)]
-pub struct IsLocalPlayer;
-
 fn client_set_local_player_marker(
     mut commands: Commands,
-    mut player_query: Query<(Entity, &PlayerId), Without<IsLocalPlayer>>,
+    player_query: Query<(Entity, &PlayerId), Without<IsLocalPlayer>>,
     netcode_client: Res<NetcodeClientTransport>,
 ) {
     let local_client_id = netcode_client.client_id();
-    for (entity, player_id) in player_query.iter_mut() {
+    for (entity, player_id) in player_query.iter() {
         if player_id.0 == local_client_id {
             commands.entity(entity).insert((IsLocalPlayer, Sprite { color: Color::srgb(0.0, 0.0, 1.0), ..Default::default() }));
             info!("Local player identified: {:?}", entity);
