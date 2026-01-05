@@ -13,6 +13,7 @@ use bevy_replicon_renet::{
 use std::net::{Ipv4Addr, SocketAddr, UdpSocket};
 use std::time::SystemTime;
 use crate::NetworkMode;
+use crate::gameplay::{Player, PlayerId};
 
 pub struct NetworkPlugin;
 
@@ -21,6 +22,10 @@ impl Plugin for NetworkPlugin {
         // Add Replicon plugins
         app.add_plugins(RepliconPlugins);
         app.add_plugins(RepliconRenetPlugins);
+
+        // Register replicable components
+        app.replicate::<Player>();
+        app.replicate::<PlayerId>();
 
         let network_mode = *app.world().resource::<NetworkMode>();
 
