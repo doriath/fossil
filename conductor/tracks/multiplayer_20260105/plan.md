@@ -25,11 +25,11 @@
     *   [ ] Sub-task: Write a server system to spawn a player entity when a new client connects.
     *   [ ] Sub-task: Assign a unique identifier to each player (e.g., `PlayerId` component) and associate it with the client connection.
     *   [ ] Sub-task: Ensure player entities created by the server are properly marked for replication to clients.
-*   [x] Task: Implement client-side player entity handling. 34ec65d
+*   [x] Task: Implement client-side player entity handling. 04da841
     *   [ ] Sub-task: Write a client system to despawn player entities when a client disconnects.
     *   [ ] Sub-task: Write a client system to identify the local player versus remote players based on `PlayerId`.
     *   [ ] Sub-task: Add placeholder visual representation for remote players.
-*   [ ] Task: Replicate player movement.
+*   [~] Task: Replicate player movement.
     *   [ ] Sub-task: Modify the local player movement system on the client to send movement input to the server.
     *   [ ] Sub-task: Implement a server system to receive client movement input and update the server-side player's `Transform`.
     *   [ ] Sub-task: Ensure the server's `Transform` updates are replicated back to all clients.
