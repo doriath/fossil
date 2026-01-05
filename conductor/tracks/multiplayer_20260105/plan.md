@@ -6,7 +6,7 @@
 *   [x] Task: Add networking dependencies. 0dba776
     *   [ ] Sub-task: Update `crates/game/Cargo.toml` with `bevy_replicon` and `bevy_replicon_renet` dependencies.
     *   [ ] Sub-task: Add `clap` as a dependency for command-line argument parsing.
-*   [ ] Task: Implement command-line argument parsing.
+*   [x] Task: Implement command-line argument parsing. 290baff
     *   [ ] Sub-task: Modify `crates/game/src/main.rs` to parse `--server` or `--client` arguments using `clap`.
     *   [ ] Sub-task: Define an enum or struct to hold the parsed network mode.
 *   [ ] Task: Initialize network plugins based on mode.
