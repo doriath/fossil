@@ -9,7 +9,7 @@
 *   [x] Task: Implement command-line argument parsing. 290baff
     *   [ ] Sub-task: Modify `crates/game/src/main.rs` to parse `--server` or `--client` arguments using `clap`.
     *   [ ] Sub-task: Define an enum or struct to hold the parsed network mode.
-*   [ ] Task: Initialize network plugins based on mode.
+*   [x] Task: Initialize network plugins based on mode. 05b5455
     *   [ ] Sub-task: In `crates/game/src/main.rs`, conditionalize Bevy plugin setup based on server/client mode.
     *   [ ] Sub-task: Configure `bevy_replicon`'s server and client plugins.
     *   [ ] Sub-task: Configure `bevy_replicon_renet`'s server and client transport.
