@@ -13,7 +13,7 @@
     *   [ ] Sub-task: In `crates/game/src/main.rs`, conditionalize Bevy plugin setup based on server/client mode.
     *   [ ] Sub-task: Configure `bevy_replicon`'s server and client plugins.
     *   [ ] Sub-task: Configure `bevy_replicon_renet`'s server and client transport.
-*   [ ] Task: Conductor - User Manual Verification 'Initial Network Setup' (Protocol in workflow.md)
+*   [ ] Task: Conductor - User Manual Verification 'Initial Network Setup' (Protocol in workflow.md) [checkpoint: 0e44815]
 
 ## Phase 2: Player Entity and Position Replication
 *   **Goal:** Enable player entities to be spawned on the server, replicated to clients, and their positions synchronized across all connected instances.
