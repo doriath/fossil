@@ -18,7 +18,11 @@ impl Plugin for GameplayPlugin {
     }
 }
 
-fn setup_gameplay(mut commands: Commands, mut clear_color: ResMut<ClearColor>, player_query: Query<Entity, With<Player>>) {
+fn setup_gameplay(
+    mut commands: Commands,
+    mut clear_color: ResMut<ClearColor>,
+    player_query: Query<Entity, With<Player>>,
+) {
     // Only spawn player if one doesn't already exist
     if player_query.iter().next().is_none() {
         clear_color.0 = Color::srgb(0.0, 1.0, 0.0);
@@ -215,7 +219,9 @@ mod tests {
             .add_plugins(bevy::time::TimePlugin);
 
         // First transition to InGame to spawn initial player
-        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::InGame);
+        app.world_mut()
+            .resource_mut::<NextState<AppState>>()
+            .set(AppState::InGame);
         app.update();
         app.update();
 
@@ -223,17 +229,24 @@ mod tests {
         assert_eq!(initial_player_count, 1, "Initial player count should be 1");
 
         // Now transition to Paused
-        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::Paused);
+        app.world_mut()
+            .resource_mut::<NextState<AppState>>()
+            .set(AppState::Paused);
         app.update();
         app.update();
 
         // Then transition back to InGame (simulating resume)
-        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::InGame);
+        app.world_mut()
+            .resource_mut::<NextState<AppState>>()
+            .set(AppState::InGame);
         app.update();
         app.update();
 
         // Assert that no new player was spawned
         let final_player_count = app.world_mut().query::<&Player>().iter(app.world()).len();
-        assert_eq!(final_player_count, 1, "Resuming game should not spawn an extra player");
+        assert_eq!(
+            final_player_count, 1,
+            "Resuming game should not spawn an extra player"
+        );
     }
 }

@@ -2571,9 +2571,13 @@ name = "game"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_renet",
  "bevy_replicon",
  "bevy_replicon_renet",
  "clap",
+ "renet",
+ "renet_netcode",
+ "serde",
 ]
 
 [[package]]

@@ -1,7 +1,6 @@
 use crate::states::AppState;
 use bevy::prelude::*;
 
-
 pub struct PauseMenuPlugin;
 
 #[derive(Component)]
@@ -85,54 +84,56 @@ fn setup_pause_menu(mut commands: Commands) {
             ));
 
             // Continue Button
-            parent.spawn((
-                Button,
-                Interaction::default(), // Ensure Interaction component is present
-                Node {
-                    width: Val::Px(200.0),
-                    height: Val::Px(65.0),
-                    margin: UiRect::all(Val::Px(20.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
-            ))
-            .with_children(|parent| {
-                parent.spawn((
-                    Text::new("Continue"),
-                    TextFont {
-                        font_size: 40.0,
+            parent
+                .spawn((
+                    Button,
+                    Interaction::default(), // Ensure Interaction component is present
+                    Node {
+                        width: Val::Px(200.0),
+                        height: Val::Px(65.0),
+                        margin: UiRect::all(Val::Px(20.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
                         ..default()
                     },
-                    TextColor(Color::WHITE),
-                ));
-            });
+                    BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
+                ))
+                .with_children(|parent| {
+                    parent.spawn((
+                        Text::new("Continue"),
+                        TextFont {
+                            font_size: 40.0,
+                            ..default()
+                        },
+                        TextColor(Color::WHITE),
+                    ));
+                });
 
             // Exit to Main Menu Button
-            parent.spawn((
-                Button,
-                Interaction::default(), // Ensure Interaction component is present
-                Node {
-                    width: Val::Px(200.0),
-                    height: Val::Px(65.0),
-                    margin: UiRect::all(Val::Px(20.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
-            ))
-            .with_children(|parent| {
-                parent.spawn((
-                    Text::new("Exit to Main Menu"),
-                    TextFont {
-                        font_size: 40.0,
+            parent
+                .spawn((
+                    Button,
+                    Interaction::default(), // Ensure Interaction component is present
+                    Node {
+                        width: Val::Px(200.0),
+                        height: Val::Px(65.0),
+                        margin: UiRect::all(Val::Px(20.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
                         ..default()
                     },
-                    TextColor(Color::WHITE),
-                ));
-            });
+                    BackgroundColor(Color::srgb(0.15, 0.15, 0.15)),
+                ))
+                .with_children(|parent| {
+                    parent.spawn((
+                        Text::new("Exit to Main Menu"),
+                        TextFont {
+                            font_size: 40.0,
+                            ..default()
+                        },
+                        TextColor(Color::WHITE),
+                    ));
+                });
         });
 }
 #[cfg(test)]
@@ -195,7 +196,9 @@ mod tests {
             .init_state::<AppState>()
             .add_plugins(PauseMenuPlugin); // PauseMenuPlugin will contain the setup system
 
-        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::Paused);
+        app.world_mut()
+            .resource_mut::<NextState<AppState>>()
+            .set(AppState::Paused);
         app.update();
         app.update();
 
@@ -212,8 +215,14 @@ mod tests {
                 found_exit = true;
             }
         }
-        assert!(found_continue, "Continue button text not found in pause menu");
-        assert!(found_exit, "Exit to Main Menu button text not found in pause menu");
+        assert!(
+            found_continue,
+            "Continue button text not found in pause menu"
+        );
+        assert!(
+            found_exit,
+            "Exit to Main Menu button text not found in pause menu"
+        );
     }
 
     #[test]
@@ -225,7 +234,9 @@ mod tests {
             .add_plugins(PauseMenuPlugin);
 
         // Start in Paused state
-        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::Paused);
+        app.world_mut()
+            .resource_mut::<NextState<AppState>>()
+            .set(AppState::Paused);
         app.update();
         app.update();
 
@@ -233,24 +244,30 @@ mod tests {
         let mut continue_button_entity = None;
         // Text is a child of the Button. Query for Text and getting its Parent (ChildOf)
         let mut query = app.world_mut().query::<(&Text, &ChildOf)>();
-        
+
         for (text, parent) in query.iter(app.world()) {
             if text.0 == "Continue" {
                 continue_button_entity = Some(parent.parent());
                 break;
             }
         }
-        
+
         let continue_button_entity = continue_button_entity.expect("Continue button not found");
 
         // Simulate button press
-        app.world_mut().entity_mut(continue_button_entity).insert(Interaction::Pressed);
+        app.world_mut()
+            .entity_mut(continue_button_entity)
+            .insert(Interaction::Pressed);
 
         app.update();
         app.update(); // Process state transition
 
         let state = app.world().resource::<State<AppState>>().get();
-        assert_eq!(state, &AppState::InGame, "Game should resume when Continue is pressed");
+        assert_eq!(
+            state,
+            &AppState::InGame,
+            "Game should resume when Continue is pressed"
+        );
     }
 
     #[test]
@@ -262,31 +279,39 @@ mod tests {
             .add_plugins(PauseMenuPlugin);
 
         // Start in Paused state
-        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::Paused);
+        app.world_mut()
+            .resource_mut::<NextState<AppState>>()
+            .set(AppState::Paused);
         app.update();
         app.update();
 
         // Find "Exit to Main Menu" button entity
         let mut exit_button_entity = None;
         let mut query = app.world_mut().query::<(&Text, &ChildOf)>();
-        
+
         for (text, parent) in query.iter(app.world()) {
             if text.0 == "Exit to Main Menu" {
                 exit_button_entity = Some(parent.parent());
                 break;
             }
         }
-        
+
         let exit_button_entity = exit_button_entity.expect("Exit to Main Menu button not found");
 
         // Simulate button press
-        app.world_mut().entity_mut(exit_button_entity).insert(Interaction::Pressed);
+        app.world_mut()
+            .entity_mut(exit_button_entity)
+            .insert(Interaction::Pressed);
 
         app.update();
         app.update(); // Process state transition
 
         let state = app.world().resource::<State<AppState>>().get();
-        assert_eq!(state, &AppState::MainMenu, "Game should return to MainMenu when Exit to Main Menu is pressed");
+        assert_eq!(
+            state,
+            &AppState::MainMenu,
+            "Game should return to MainMenu when Exit to Main Menu is pressed"
+        );
     }
 
     #[test]
@@ -298,28 +323,39 @@ mod tests {
             .add_plugins(PauseMenuPlugin); // Add PauseMenuPlugin here
 
         // Enter Paused state and spawn menu UI
-        app.world_mut().resource_mut::<NextState<AppState>>().set(AppState::Paused);
+        app.world_mut()
+            .resource_mut::<NextState<AppState>>()
+            .set(AppState::Paused);
         app.update();
         app.update();
 
         // Simulate "Continue" button press to transition to InGame state
         let mut continue_button_entity = None;
         let mut query = app.world_mut().query::<(&Text, &ChildOf)>();
-        
+
         for (text, parent) in query.iter(app.world()) {
             if text.0 == "Continue" {
                 continue_button_entity = Some(parent.parent());
                 break;
             }
         }
-        
+
         let continue_button_entity = continue_button_entity.expect("Continue button not found");
-        app.world_mut().entity_mut(continue_button_entity).insert(Interaction::Pressed);
+        app.world_mut()
+            .entity_mut(continue_button_entity)
+            .insert(Interaction::Pressed);
         app.update();
         app.update(); // State transition happens here
 
         // Assert that no entities with PauseMenuUi component exist
-        let count = app.world_mut().query::<&PauseMenuUi>().iter(app.world()).len();
-        assert_eq!(count, 0, "Pause menu UI should be despawned after exiting Paused state");
+        let count = app
+            .world_mut()
+            .query::<&PauseMenuUi>()
+            .iter(app.world())
+            .len();
+        assert_eq!(
+            count, 0,
+            "Pause menu UI should be despawned after exiting Paused state"
+        );
     }
 }
