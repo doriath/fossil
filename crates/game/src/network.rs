@@ -74,14 +74,36 @@ impl Plugin for NetworkPlugin {
                 app.insert_resource(transport);
                 
                 info!("Client started, connecting to {}", server_addr);
+                app.add_systems(Update, client_set_local_player_marker.run_if(
+                    |client: Option<Res<RenetClient>>| client.is_some()
+                ));
             }
+        }
+    }
+}
+
+
+#[derive(Component)]
+pub struct IsLocalPlayer;
+
+fn client_set_local_player_marker(
+    mut commands: Commands,
+    mut player_query: Query<(Entity, &PlayerId), Without<IsLocalPlayer>>,
+    netcode_client: Res<NetcodeClientTransport>,
+) {
+    let local_client_id = netcode_client.client_id();
+    for (entity, player_id) in player_query.iter_mut() {
+        if player_id.0 == local_client_id {
+            commands.entity(entity).insert((IsLocalPlayer, Sprite { color: Color::srgb(0.0, 0.0, 1.0), ..Default::default() }));
+            info!("Local player identified: {:?}", entity);
         }
     }
 }
 
 fn server_spawn_player(
     mut commands: Commands,
-    mut server_events: MessageReader<ServerEvent>, // Changed
+    mut server_events: MessageReader<ServerEvent>,
+    player_query: Query<(Entity, &PlayerId), With<Player>>,
 ) {
     for event in server_events.read() {
         match event {
@@ -102,6 +124,10 @@ fn server_spawn_player(
             }
             ServerEvent::ClientDisconnected { client_id, reason } => {
                 info!("Client {} disconnected: {:?}", client_id, reason);
+                if let Some((entity, _)) = player_query.iter().find(|(_, player_id)| player_id.0 == *client_id) {
+                    commands.entity(entity).despawn();
+                    info!("Despawned player for client {}", client_id);
+                }
             }
         }
     }
