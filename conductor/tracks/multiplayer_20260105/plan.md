@@ -21,7 +21,7 @@
 *   [x] Task: Define replicable player components. 19f6be8
     *   [ ] Sub-task: Create or modify existing player components (e.g., `PlayerId`, `Transform`) to derive `Replicate` trait for `bevy_replicon`.
     *   [ ] Sub-task: Add `RepliconAppExt` to the appropriate `App` for replication setup.
-*   [ ] Task: Implement server-side player management.
+*   [x] Task: Implement server-side player spawning and replication. 1533a25
     *   [ ] Sub-task: Write a server system to spawn a player entity when a new client connects.
     *   [ ] Sub-task: Assign a unique identifier to each player (e.g., `PlayerId` component) and associate it with the client connection.
     *   [ ] Sub-task: Ensure player entities created by the server are properly marked for replication to clients.
